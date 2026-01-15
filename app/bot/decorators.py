@@ -78,7 +78,11 @@ async def _handle_exception(
     elif isinstance(exception, (APIError)):
         error_text = translator.get("somethingWrong")
         view = ViewResponse(message=error_text)
-        logger.error(f"APIError/SeedrError: {exception}", raw_response=exception.response, exc_info=True)
+        logger.error(
+            f"APIError/SeedrError: {exception}",
+            raw_response=exception.response.content if exception.response else None,
+            exc_info=True,
+        )
 
     elif isinstance(exception, (SeedrError)):
         error_text = translator.get("somethingWrong")
