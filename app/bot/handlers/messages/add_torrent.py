@@ -46,7 +46,7 @@ async def add_torrent_handler(
             view = render_item_already_in_queue(translator)
             await status_message.edit(view.message, buttons=view.buttons)
     except seedrcc.exceptions.APIError as err:
-        if err.error_type == "queue_full_added_to_wishlist":
+        if err.error_type in ("queue_full_added_to_wishlist", "queue_full_wishlist_full"):
             view = render_queue_full_added_to_wishlist(translator)
             await status_message.edit(view.message, buttons=view.buttons)
         elif err.error_type in ("not_enough_space_added_to_wishlist", "not_enough_space_wishlist_full"):
