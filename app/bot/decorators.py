@@ -116,6 +116,7 @@ def setup_handler(require_auth: bool = False):
         @functools.wraps(func)
         async def wrapper(event: events.NewMessage.Event | events.CallbackQuery.Event, *args: Any, **kwargs: Any):
             translator = None
+            seedr_client: AsyncSeedr | None = None
             try:
                 user = kwargs.get("user")
                 if not user:
@@ -128,6 +129,7 @@ def setup_handler(require_auth: bool = False):
                 translator = language_service.get_translator(user.language)
 
                 injected_kwargs = await _inject_dependencies(func, event, user, translator, require_auth)
+                seedr_client: AsyncSeedr | None = injected_kwargs.get("seedr_client")
 
                 # Merge original kwargs with injected dependencies (injected takes precedence)
                 final_kwargs = {**kwargs, **injected_kwargs}
@@ -136,6 +138,10 @@ def setup_handler(require_auth: bool = False):
             except Exception as err:
                 translator = language_service.get_translator() if translator is None else translator
                 await _handle_exception(event, translator, err)
+
+            finally:
+                if seedr_client:
+                    await seedr_client.close()
 
         return wrapper
 
